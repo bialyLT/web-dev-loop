@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "project": {
+    "name": "{{PROJECT_NAME}}",
+    "appUrl": "http://127.0.0.1:{{APP_PORT}}",
+    "repoRoot": ".",
+    "db": {
+      "dev": "{{DB_DEV}}",
+      "test": "{{DB_TEST}}",
+      "port": {{DB_PORT}},
+      "startCmd": "{{DB_START_CMD}}"
+    },
+    "server": {
+      "port": {{APP_PORT}},
+      "buildBeforeStart": true,
+      "stopServerBeforeBuild": true
+    }
+  },
+  "gates": {
+    "typecheck": "{{TYPECHECK_CMD}}",
+    "unit": "{{TEST_CMD}}",
+    "smoke": "{{SMOKE_CMD}}",
+    "build": "{{BUILD_CMD}}",
+    "flows": "{{FLOWS_CMD}}"
+  },
+  "testers": [
+    {
+      "id": "ui",
+      "domain": "ui",
+      "agent": "agents/tester-ui.md",
+      "capabilities": ["interaccion", "geometria", "accesibilidad", "e2e"],
+      "adapters": ["maestro", "cdp"],
+      "batteries": "scripts/tester-ui/",
+      "regression": "",
+      "budget": { "maxFlows": 30, "maxRuntimeMin": 90 }
+    }
+  ],
+  "tools": {
+    "harness": "tools/harness.mjs",
+    "runner": "tools/run-batteries.mjs",
+    "reportsDir": "reports"
+  },
+  "notes": [
+    "Un solo runner de UI a la vez.",
+    "El MCP de Maestro no convive con el CLI de Maestro (lock de ~/.maestro/sessions).",
+    "Los informes de ronda viven fuera del repo (TEMP) o en carpetas gitignoradas."
+  ]
+}

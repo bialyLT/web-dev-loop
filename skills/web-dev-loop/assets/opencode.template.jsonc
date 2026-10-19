@@ -1,0 +1,84 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Modelo por defecto. Para fijar un modelo/variante por agente, usá "model":
+  // "provider/model#variant" (ej. "anthropic/claude-sonnet-sonnet-4-5#high").
+  "model": "{{MODEL}}",
+
+  // El orquestador es el agente primario: coordina, delega y commitea.
+  "default_agent": "orchestrator",
+
+  "agents": {
+    "orchestrator": {
+      "description": "Coordina el loop dev -> tester -> gate -> cierre. Es el unico que commitea.",
+      "mode": "primary",
+      "system": "{file:./agents/orchestrator.md}"
+    },
+    "dev": {
+      "description": "Implementa una ronda de codigo segun la spec de la fase, con gates verdes y sin commitear.",
+      "mode": "subagent",
+      "system": "{file:./agents/dev.md}"
+      // "model": "provider/model#variant"
+    },
+    "tester-ui": {
+      "description": "Tester adversarial de UI: usa la app de verdad, mide geometria y deja repro que falla primero.",
+      "mode": "subagent",
+      "system": "{file:./agents/tester-ui.md}"
+    },
+    "tester-db": {
+      "description": "Tester adversarial de base de datos: invariantes, indices, concurrencia y reconciliacion.",
+      "mode": "subagent",
+      "system": "{file:./agents/tester-db.md}"
+    },
+    "tester-quality": {
+      "description": "Tester adversarial de calidad de codigo: tipos, lint, complejidad, cobertura y deuda.",
+      "mode": "subagent",
+      "system": "{file:./agents/tester-quality.md}"
+    },
+    "security-auditor": {
+      "description": "Auditor de seguridad: busca hallazgos reproducibles y no arregla.",
+      "mode": "subagent",
+      "system": "{file:./agents/security-auditor.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
+    }
+  },
+
+  // Permisos: lo que se puede hacer sin preguntar. "ask" para lo que decide la persona.
+  "permissions": [
+    { "action": "shell", "resource": "git commit *", "effect": "ask" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
+    { "action": "read", "resource": "**/.env", "effect": "deny" },
+    { "action": "read", "resource": "**/*.pem", "effect": "deny" },
+    { "action": "read", "resource": "**/*.key", "effect": "deny" }
+  ],
+
+  // MCPs. Ver README.md para la politica de cada uno.
+  // OJO: "maestro" queda comentado a proposito: el MCP y el CLI de Maestro pelean por
+  // ~/.maestro/sessions. Si lo habilitas, que sea EN LUGAR del CLI, nunca junto al CLI.
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "enabled": true
+      },
+      "engram": {
+        "type": "local",
+        "command": ["{{ENGRAM_CMD}}", "mcp", "--tools=agent"],
+        "enabled": true
+      }
+    }
+  },
+
+  // Instrucciones: ademas de AGENTS.md, se cargan los contratos y la arquitectura.
+  "instructions": [
+    "AGENTS.md",
+    "agents/README.md",
+    "testing/README.md",
+    "docs/lessons.md"
+  ]
+}

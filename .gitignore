@@ -1,0 +1,16 @@
+# node
+node_modules/
+npm-debug.log*
+
+# artefactos de las demos y del harness
+reports/
+*.log
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# nada de esto deberia terminar en el repo
+.env
+.env.*
+!.env.example
