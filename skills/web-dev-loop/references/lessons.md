@@ -321,6 +321,25 @@ landscape es donde el pie pegajoso y los paneles se estrujan.
 las alturas de teléfono y tablet reales: 844×390, 667×375) y los modales medirse en las
 tres. Si un bug aparece sólo en landscape y el gate no lo mira, el gate es decorativo.
 
+### D14 · Trabajar sobre una base con datos REALES: prohibido tocarla
+**Síntoma:** el agente de la ronda "limpió" un dato inválido (o dejó la base como estaba) y la
+persona perdió información. O al revés: un gate con `--reset` borró la base entera.
+**Por qué:** en un entorno de pruebas, la base es desechable; cuando **la app pasa a uso
+personal**, la base es de la persona. Un `delete` que en pruebas era inocuo es una pérdida de
+datos real.
+**Regla (para el orquestador):**
+- El brief dice **explícitamente** que la base tiene datos reales y que **ningún agente
+  borra, edita ni "normaliza" filas** (ni cuentas, ni categorías, ni movimientos, ni reglas).
+- Los gates que **siembran** (smoke con `--reset`, flows) corren contra **otra base y otra
+  instancia** (la de tests, en otro puerto). La infraestructura para eso suele existir
+  (variables `SMOKE_BASE_URL` / `FINANZAS_BASE`): lo que faltaba era el script.
+- **Snapshot antes y después** de la ronda (conteos y filas clave) y comparison en el informe:
+  si no coincide, la ronda está mal, por más verde que esté el resto.
+**Regla (para el agente):** si un dato viola un invariante y el arreglo sería borrarlo o
+"normalizarlo", **no lo toques**: reportalo. El invariante lo arregla la app, el dato lo
+decide la persona.
+**Corolario de proceso:** un dato inválido es **un hallazgo**, no una tarea de limpieza.
+
 ---
 
 ## E. Loop y cierre
