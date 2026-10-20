@@ -173,9 +173,33 @@ pantallas grandes. Un `sm:hidden sm:block` por teléfono no arregla nada: escond
 `@theme inline`, y las variantes propias se declaran con `@custom-variant` (ej.
 `@custom-variant touch { @media (pointer: coarse) { @slot; } }` → `touch:min-h-11`).
 
----
+### C12 · La zona muerta del pie pegajoso: el scroller tiene que TERMINAR donde empieza el pie
+**Síntoma:** en un modal con pie fijo, un campo queda **debajo** de la banda; el dedo lo
+toca y **despacha otro control** (un «Cancelar» que cierra y **descarta lo cargado**), o el
+tap se pierde en silencio.
+**Causa:** el pie es `sticky` **dentro** del área scrolleable: el contenido scrollea por
+debajo de él.
+**Arreglo:** el panel como **columna flex** — `flex-none` en el encabezado y el pie,
+`flex-1 min-h-0 overflow-y-auto` en el área del formulario — así el área scrolleable
+**termina** donde empieza el pie. Con el pie **fuera** del `<form>`, el botón de guardar se
+referencia con `form="…"` (si no, Enter en un campo dispara el submit antes de tiempo).
+**Medición:** malla de puntos sobre el rect **visible** de cada control + `elementFromPoint`:
+tiene que dar **0 superficies partidas** (la persona ve un control y el tap despacha otro).
+"Un aviso" (control bajo la banda pero alcanzable scrolleando) **no es** lo mismo que un
+tap muerto: pero si **debajo** hay un botón disparativo, es un bug igual de grave.
 
-## D. Arnés y medición
+### C13 · El contenido tiene que entrar en su caja
+**Síntoma:** el documento no se desborda (el device está bien) pero **el número queda
+cortado dentro de su tarjeta**.
+**Por qué importa:** es una mentira igual de grave que el desborde: el panel muestra
+`$ 800.000,0…`. Un gate que mide sólo el ancho del documento **no lo ve**.
+**Arreglo:** que el texto **se ajuste al ancho de su caja** (container query con la unidad
+`cqw`, o un cuerpo de letra proporcional) — no que se corte. Y **el gate tiene que
+medirlo**: un check "el contenido entra en su caja", con **umbral explícito**, que **cuente
+como falla** y nombre al culpable. Un check que *imprime* el problema pero no lo cuenta es
+un gate verde con mentira.
+
+---
 
 ### D1 · La ventana real no es la que suponés
 La ventana del runner no es 1024×600. Medí el viewport real antes de discutir geometría.
@@ -249,9 +273,25 @@ pedile que cierre.
 **Corolario:** en una ronda, el orquestador **no escribe en la memoria** hasta que el
 subagente terminó.
 
----
+### D12 · Un flag sin valor apaga el check EN SILENCIO
+**Síntoma:** un gate que debería fallar da verde, y no hay error ni aviso.
+**Causa:** un parámetro opcional sin valor → `NaN` → la comparación del check da `false`
+para todos los casos → el check **nunca** dispara (y el runner sigue reportando `ok>0`).
+**Regla:** todo umbral o flag de un gate tiene que **validarse al arrancar** (`Number.isFinite`
+y un rango con sentido) y **fallar ruidosamente** si no tiene valor. Un gate que se
+desapaga sin decir nada es peor que no tenerlo.
+**Corolario:** el gate tiene que **medir su propio contrato**: ¿detecta una fuga real? ¿el
+umbral se puede ablandar a voluntad? Probá el flag con un valor absurdo y exigí que se queje.
 
-## E. Loop y cierre
+### D13 · Una auditoría que sólo mide una orientación no ve la mitad del problema
+**Síntoma:** el gate barre 320→1024 y da verde; en landscape la app está rota.
+**Causa:** el sweep es sólo portrait (la forma en que se escribe un layout), y el
+landscape es donde el pie pegajoso y los paneles se estrujan.
+**Regla:** el sweep tiene que incluir **las dos orientaciones** (portrait y landscape, con
+las alturas de teléfono y tablet reales: 844×390, 667×375) y los modales medirse en las
+tres. Si un bug aparece sólo en landscape y el gate no lo mira, el gate es decorativo.
+
+---
 
 ### E1 · Un solo escritor a la vez
 El dev escribe; cuando entrega, el árbol queda congelado y el tester pasa a ser el único
