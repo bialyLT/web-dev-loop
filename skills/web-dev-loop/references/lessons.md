@@ -154,6 +154,24 @@ direcciones.
 44 px CSS ≈ 11,6 mm; es un mínimo **humano**, no un breakpoint de diseño). La nav, los botones
 de filtro, las flechas de mes y los chips de acción son los que más se olvidan. Los links
 dentro de un párrafo son la excepción habitual.
+**Y decidí por MODELEDAD, no por ancho:** `@media (pointer: coarse)` = "el usuario tiene el
+dedo" → 44 px; un mouse no los necesita. Con un corte por ancho, un teléfono en landscape
+(1024px) queda con targets chicos y una ventana angosta de escritorio los infla sin razón.
+
+### C11 · En Tailwind (y en todo mobile-first) el teléfono es la BASE, no un breakpoint
+**Síntoma:** el proyecto "usa responsive" y en el teléfono todo se rompe igual.
+**Causa:** Tailwind v4 arranca en `sm: 40rem` (640px): **debajo de 640px no hay prefijo que
+te salve**, y el layout base es el que se ve en el teléfono. Si el base se escribió pensando
+en escritorio (una fila de `flex` que no envuelve, un `grid-cols-4`), en el teléfono no hay
+"layout móvil": hay un layout de escritorio que se desborda.
+**Regla:** el arrangement del teléfono va en las clases **sin prefijo** (fluidas: wrap,
+`min-w-0`, `overflow-x-auto` donde corresponda) y los prefijos **agregan** disposición en
+pantallas grandes. Un `sm:hidden sm:block` por teléfono no arregla nada: esconde el síntoma.
+**Diagnóstico rápido:** contá los prefijos que el proyecto usa (`grep -o '\b\(sm\|md\|lg\|xl\):'`
+). Si sólo usa `sm:` (o nada), el layout base es el de escritorio: el trabajo real es ahí.
+**Con Tailwind v4 (CSS-first, sin `tailwind.config.js`):** el theme vive en el CSS global con
+`@theme inline`, y las variantes propias se declaran con `@custom-variant` (ej.
+`@custom-variant touch { @media (pointer: coarse) { @slot; } }` → `touch:min-h-11`).
 
 ---
 
