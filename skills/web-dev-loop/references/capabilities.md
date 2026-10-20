@@ -38,6 +38,7 @@ Este catálogo es el **menú base**. Se enriquece con lo que haya instalado.
 | **Seguridad** | auditor read-only, `npm audit` | Hallazgos reproducibles por severidad | agente `security-auditor` |
 | **API / contratos** | tests de integracion, OpenAPI | Cuerpos hostiles, limites, idempotencia, status codes | — |
 | **Performance** | k6, scripts de timing, `EXPLAIN` | Presupuestos de latencia y de carga | — |
+| **Responsive / mobile** | emulacion de device por CDP, auditoria por viewport | Que nada se desborde en 360-430 px y que los targets tocables lleguen a 44 px | — |
 | **Documentacion** | context7 | Docs actuales de librerias (proactivo del dev) | MCP `context7` |
 | **Memoria** | engram | Decisiones y cierres entre sesiones (proactivo del dev) | MCP `engram` |
 
@@ -58,6 +59,7 @@ options:
   - "Seguridad — auditor read-only: hallazgos reproducibles por severidad"
   - "API / contratos — cuerpos hostiles, limites, idempotencia"
   - "Performance — presupuestos de latencia y carga"
+  - "Responsive / mobile — que nada se desborde en 360-430 px y los targets lleguen a 44 px"
 ```
 
 Si el usuario no marca ninguno: se sigue, pero **decí** que la fase queda sin cobertura

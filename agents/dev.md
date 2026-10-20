@@ -62,6 +62,10 @@ queda listo y el orquestador commitea.
 - [ ] Opciones cruzadas -> exclui la combinacion imposible y probala.
 - [ ] UI sin dialogos nativos; confirmaciones inline en dos pasos; atajos con guardas dobles.
 - [ ] Geometria medida contra capas fijas en cada estado.
+- [ ] **Responsive**: vista y modal se ven y se operan en 360-430 px. Sin scroll horizontal (el
+      contenido no puede forzar un ancho mayor al del device) y targets tactiles >= 44 px. Se
+      mide emulando el device, NO con `innerWidth` (miente cuando el contenido no achica:
+      Chrome expande el viewport) y **verificando el viewport antes de medir**.
 
 ## Entregables
 

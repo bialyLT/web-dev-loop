@@ -120,6 +120,36 @@ la minúscula sigue siendo **dato** dentro de un input (`t` en un campo de texto
 Un control nuevo en un modal con pie fijo empuja los de abajo. Medilo contra la banda en el
 reposo de **cada estado** (distintos formularios o vistas miden distinto).
 
+### C8 · El contenido que no puede achicarse rompe TODAS las vistas
+**Síntoma:** en un teléfono, la página se ve chueca (texto microscópico) o hay scroll
+horizontal en todas las pantallas.
+**Causa:** un elemento con ancho mínimo fijo o no achicable — una fila de `flex` que no
+envuelve, un `grid-cols-4` sin `sm:`, un `whitespace-nowrap`, una tabla, un `w-[Npx]`, un
+nav con 5 links — **empuja el documento entero** a su ancho mínimo.
+**Medida:** el **ancho del contenido** (`documentElement.scrollWidth`) contra el **ancho del
+device**, no contra `innerWidth` (ver C9). Un solo nav sin wrap bastó para romper seis vistas
+(375 → 664 px).
+**Arreglo:** que el nav envuelva o tenga scroll propio; que los grids bajen de columnas en
+mobile; que las tablas pasen a cards o a scroll horizontal **contenido**; nada de anchos fijos
+sin `max-w-full`.
+**Generaliza:** el responsive no es "que la página entre": es que **el contenido no imponga su
+ancho mínimo al viewport**. Se mide por vista y por modal, no se supone.
+
+### C9 · `innerWidth` miente cuando el contenido no puede achicarse
+**Síntoma:** medís 664 px en un device de 375 y te parece que la emulación falló... o al revés:
+medís "todo bien" en 664 y creés que estás en 375.
+**Causa:** cuando el contenido no puede encogerse, Chrome **expande el viewport de layout**:
+`innerWidth` crece al ancho del contenido (375 → 664) y deja de reflejar el device.
+**Arreglo:** medí siempre contra el **ancho del device** (el que vos fijaste en la emulación) y
+`documentElement.scrollWidth`. Si tu auditoría usa `innerWidth` como verdad, miente en dos
+direcciones.
+
+### C10 · Target táctil chico
+**Síntoma:** en el teléfono se erran los botones; el usuario "no le da al botón".
+**Regla:** todo control interactivo **≥ 44×44 px** (altura incluida: un botón de 36 px de alto
+es un error de dedo). La nav, los botones de filtro, las flechas de mes y los chips de acción
+son los que más se olvidan.
+
 ---
 
 ## D. Arnés y medición
@@ -150,6 +180,24 @@ flow que tarda el doble o muere en el primer `openLink` con un error que culpa a
 
 ### D7 · Asertar por texto en una base sembrada
 El seed repite descripciones genéricas. Filtrá por **cuenta o id**, nunca por descripción.
+
+### D8 · La emulación móvil sólo aplica en el documento NUEVO
+**Síntoma:** configurás el viewport del device, medís, y te da el ancho de la ventana real
+(1019 px): la auditoría dice "todo bien" y no midió nada.
+**Causa:** `Emulation.setDeviceMetricsOverride` (con `screenWidth`/`screenHeight` y
+`mobile: true`) recién surte efecto en la **documento siguiente**: hay que aplicarlo y **después
+navegar**. Medir antes de navegar da la ventana real.
+**Regla:** tu auditoría tiene que **verificar el viewport antes de medir** y **fallar loudly**
+si no es el pedido ("esperaba 375 y el navegador mide 1019"). Una auditoría que mide el
+viewport equivocado sin avisar es peor que no tener auditoría.
+
+### D9 · Los breakpoints se miden, no se suponen
+**Síntoma:** el proyecto "usa responsive" y en el teléfono todo se rompe igual.
+**Causa:** la app se construyó desktop-first y los breakpoints son un parche.
+**Regla:** contá cuántos breakpoints hay (un grep de `sm:|md:|lg:` da la respuesta en un
+segundo) y auditá **vista por vista y modal por modal** en 2-3 anchos de device reales
+(360-430 px). Un gate de responsive en la ronda es lo que lo convierte en regla y no en
+intención.
 
 ---
 

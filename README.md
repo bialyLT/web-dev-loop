@@ -80,6 +80,7 @@ La skill encadena:
 0.2  inventaría las skills y MCPs instalados en TU máquina
 0.3  pregunta 1 (multi): ¿qué testing querés activo?
      interfaz/E2E · base de datos · calidad de código · seguridad · API/contratos · performance
+     · **responsive/mobile** (que nada se desborde en 360-430 px y los targets lleguen a 44 px)
 0.4  pregunta 2 (multi): ¿qué skills/MCPs son proactivos de los devs?
 0.5  calcula el plan de fan-out: cuántos subagentes y en qué orden
 0.6  propone el roadmap por fases y ESPERA tu OK
