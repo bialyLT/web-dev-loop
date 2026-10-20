@@ -223,6 +223,32 @@ device (320-1024 px), no tres teléfonos. Y pedí que el arreglo sea **fluido**:
 `@media` por teléfono, la auditoría lo va a marcar en el ancho siguiente. Un gate de
 responsive en la ronda es lo que lo convierte en regla y no en intención.
 
+### D10 · Una auditoría que nunca falla no es una auditoría
+**Síntoma:** el gate de responsive dice "ok" y el layout está roto (o al revés: el gate
+falla por una regla que nadie pidió).
+**Causa:** la auditoría se validó **contra un layout sano**: nunca se comprobó que detecte
+una fuga real.
+**Regla:** **rompé algo a propósito y exigí que el gate lo detecte** (un `whitespace-nowrap`,
+un `w-[999px]`, un `min-width`). Si el gate sigue diciendo "ok", el gate está roto: es peor
+que no tenerlo, porque da confianza falsa. Lo mismo con los **avisos**: una herramienta que
+distingue "tap muerto" de "control alcanzable scrolleando" tiene que **probar esa
+distinción** en los dos casos.
+**Regla de la emulación:** verificá que la auditoría mide **el viewport que dice medir**
+(fallo ruidoso si la emulación no aplicó) y que el comportamiento que mide (puntero grueso,
+por ejemplo) esté **realmente emulado** — sin `setTouchEmulationEnabled`, un "teléfono"
+sigue reportando `pointer: fine` y la regla de targets no se aplica.
+
+### D11 · No escribas en la memoria persistente mientras otro agente escribe
+**Síntoma:** un subagente muere con `database is locked` (o `SQLITE_BUSY`) justo al guardar
+el cierre de su ronda; el trabajo queda hecho pero sin informe.
+**Causa:** la memoria persistente es un **SQLite**, y dos escritores simultáneos se bloquean.
+**Regla:** la memoria se escribe **al final de la ronda, una sola vez**. Si el orquestador
+también escribe mientras el subagente trabaja, uno de los dos se bloquea. Cuando un subagente
+muera por esto: **no lo des por perdido** — retomá su sesión (el árbol quedó intacto) y
+pedile que cierre.
+**Corolario:** en una ronda, el orquestador **no escribe en la memoria** hasta que el
+subagente terminó.
+
 ---
 
 ## E. Loop y cierre

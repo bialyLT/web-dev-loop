@@ -17,6 +17,11 @@
 4. **Todo bug con repro que falla primero.**
 5. **Los testers no tocan schema ni migraciones**: reportan.
 6. **Los agentes no se interrumpen**: corren autonomos, con brief en disco.
+7. **El tester verifica el gate, no lo Assume**: rompe algo a proposito y exige que la
+   auditoria lo detecte (una auditoria que nunca falla es peor que no tenerla).
+8. **La memoria persistente se escribe AL FINAL de la ronda, una sola vez**: es un SQLite y
+   dos escritores simultaneos se bloquean (el subagente muere con `database is locked` y su
+   ronda queda sin cerrar). El orquestador tampoco escribe mientras el subagente trabaja.
 
 ## 3. Anatomía de un brief (lo que necesita un subagente)
 
