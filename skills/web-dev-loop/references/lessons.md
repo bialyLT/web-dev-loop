@@ -199,7 +199,37 @@ medirlo**: un check "el contenido entra en su caja", con **umbral explícito**, 
 como falla** y nombre al culpable. Un check que *imprime* el problema pero no lo cuenta es
 un gate verde con mentira.
 
+### C14 · Cambiar la fuente rompe el modelo de medidas
+**Síntoma:** todo estaba bien y, al cambiar la tipografía (o al corregir un `font-family`
+que pisaba la fuente del proyecto), el contenido **se sale de su caja**: un número que
+entra ya no entra.
+**Causa:** el modelo de medidas estaba calibrado con la fuente **anterior**. Arial tiene
+**dígitos tabulares** (todos miden lo mismo); Geist (y casi todas las fuentes
+proporcionales) **no**: el «0» mide 0,6931 em y el «1» 0,4491. Un ancho de carácter
+estimado con la fuente vieja queda corto (o largo) con la nueva.
+**Arreglo:** recalibrar el modelo con las medidas **de la fuente que se usa** (medidas de
+verdad, no de memoria) y **blindarlo con un test** que falle si el modelo usa un avance
+menor al peor caso medido. Y medir el **efecto visual**: que el caso común no se encoja
+de más (1 px menos en un número es el precio de que entre; 5 px menos es un bug).
+**Clase hermana:** un `font-family` escrito a mano en el CSS global **pisa** la fuente que
+el framework carga (el `font-sans` del tema): la app renderiza con la fuente que nadie
+pidió y descarga archivos de fuente al pedo. La fuente se pone como **utilidad**, en el
+markup.
+
+### C15 · Un gancho de pruebas sin estilo: documentalo o limpialo
+**Síntoma:** en el markup quedan clases que **no aplican ningún estilo** (o porque el
+estilo se mudó a utilidades, o porque nacieron como ancla para los tests). Dos riesgos:
+el lector cree que hay un estilo que no existe, y el test depende de un nombre que
+nadie sabe por qué está.
+**Regla:** si un nombre queda **sólo** para que lo selectionen los tests, tiene que
+**decirse**: un `data-testid`, o un comentario que diga "ancla de pruebas" al lado. Si el
+patrón ya existe en el proyecto, seguí el patrón y no inventes otro. Y si el test puede
+seleccionar por algo más estable (id, texto, rol), **cambiá el test y borrá el gancho**:
+los tests son tuyos, no un muro.
+
 ---
+
+## D. Arnés y medición
 
 ### D1 · La ventana real no es la que suponés
 La ventana del runner no es 1024×600. Medí el viewport real antes de discutir geometría.
@@ -292,6 +322,8 @@ las alturas de teléfono y tablet reales: 844×390, 667×375) y los modales medi
 tres. Si un bug aparece sólo en landscape y el gate no lo mira, el gate es decorativo.
 
 ---
+
+## E. Loop y cierre
 
 ### E1 · Un solo escritor a la vez
 El dev escribe; cuando entrega, el árbol queda congelado y el tester pasa a ser el único
