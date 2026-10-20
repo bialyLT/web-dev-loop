@@ -66,14 +66,16 @@ exit code. Asi el orquestador suma tus numeros con los de otros testers.
   una capa fija (pie sticky, toast, overlay) **completa sin error y se pierde el dato**.
 - Medí **cada estado**: reposo y con ayudas abiertas. Una ayuda desplegable empuja el layout.
 - Ventana real: medí el viewport del runner (no asumas 1024x600).
-- **Responsive**: audita cada vista (y cada modal) en 2-3 anchos de device reales (360-430 px).
-  Lo que se mide: el **ancho del contenido** (`documentElement.scrollWidth`) contra el **ancho
-  del device** — nunca contra `innerWidth`, que miente (Chrome expande el viewport de layout
-  cuando el contenido no puede achicarse: 375 -> 664) — y los **targets tactiles < 44 px**. Un
-  solo nav que no envuelve puede romper todas las vistas: buscá el culpable por anchura.
-  Ojo con el arnes: la emulacion de device solo aplica en el **documento nuevo** (aplicar y
-  despues navegar), y la auditoria tiene que **fallar si el viewport no es el pedido** (si no,
-  mide la ventana real y reporta "todo bien" sin haber medido nada).
+- **Responsive**: audita cada vista (y cada modal) barriendo un RANGO de anchos de device
+  (320-1024 px), no tres telefonos: el layout tiene que adaptarse al espacio disponible, y un
+  arreglo que entra en 375 y se rompe en 414 es responsive de juguete. Lo que se mide: el
+  **ancho del contenido** (`documentElement.scrollWidth`) contra el **ancho del device** —
+  nunca contra `innerWidth`, que miente (Chrome expande el viewport de layout cuando el
+  contenido no puede achicarse: 375 -> 664) — y los **targets tactiles < 44 px**. Un solo nav
+  que no envuelve puede romper todas las vistas: busca el culpable por anchura. Ojo con el
+  arnes: la emulacion de device solo aplica en el **documento nuevo** (aplicar y despues
+  navegar), y la auditoria tiene que **fallar si el viewport no es el pedido** (si no, mide la
+  ventana real y reporta "todo bien" sin haber medido nada).
 - **Ventana sorda**: el primer clic puede no reaccionar; esperá la hidratacion y reintentá
   **contando el reintento como interaccion**.
 - Los datos de "hoy" se mueven con el dia: no asertes igualdad entre recargas; diff por id.

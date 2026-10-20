@@ -129,11 +129,15 @@ nav con 5 links — **empuja el documento entero** a su ancho mínimo.
 **Medida:** el **ancho del contenido** (`documentElement.scrollWidth`) contra el **ancho del
 device**, no contra `innerWidth` (ver C9). Un solo nav sin wrap bastó para romper seis vistas
 (375 → 664 px).
-**Arreglo:** que el nav envuelva o tenga scroll propio; que los grids bajen de columnas en
-mobile; que las tablas pasen a cards o a scroll horizontal **contenido**; nada de anchos fijos
-sin `max-w-full`.
-**Generaliza:** el responsive no es "que la página entre": es que **el contenido no imponga su
-ancho mínimo al viewport**. Se mide por vista y por modal, no se supone.
+**Arreglo — y acá está lo importante:** que el layout se **adapte al espacio disponible**, no
+que entre en una lista de teléfonos. En este orden: que el contenedor **envuelva**
+(`flex-wrap`) · `min-w-0` en los hijos de flex para que puedan encogerse · **scroll propio**
+cuando sea una tabla o una lista larga · **container queries** o `sm:`/`md:` sólo cuando de
+verdad haga falta un cambio de disposición. Un `md:hidden md:block` por teléfono NO es
+responsive: es responsive de juguete (entra en 375 y se rompe en 414).
+**El criterio es un invariante sobre un RANGO**, no una lista de devices: "sin scroll
+horizontal en **todo** ancho entre 320 y 1024". Si el layout depende de un breakpoint, se
+rompe en el ancho que nadie probó.
 
 ### C9 · `innerWidth` miente cuando el contenido no puede achicarse
 **Síntoma:** medís 664 px en un device de 375 y te parece que la emulación falló... o al revés:
@@ -146,9 +150,10 @@ direcciones.
 
 ### C10 · Target táctil chico
 **Síntoma:** en el teléfono se erran los botones; el usuario "no le da al botón".
-**Regla:** todo control interactivo **≥ 44×44 px** (altura incluida: un botón de 36 px de alto
-es un error de dedo). La nav, los botones de filtro, las flechas de mes y los chips de acción
-son los que más se olvidan.
+**Regla:** todo control interactivo **≥ 44×44 px** de alto (el mínimo de ergonomía del dedo:
+44 px CSS ≈ 11,6 mm; es un mínimo **humano**, no un breakpoint de diseño). La nav, los botones
+de filtro, las flechas de mes y los chips de acción son los que más se olvidan. Los links
+dentro de un párrafo son la excepción habitual.
 
 ---
 
@@ -195,9 +200,10 @@ viewport equivocado sin avisar es peor que no tener auditoría.
 **Síntoma:** el proyecto "usa responsive" y en el teléfono todo se rompe igual.
 **Causa:** la app se construyó desktop-first y los breakpoints son un parche.
 **Regla:** contá cuántos breakpoints hay (un grep de `sm:|md:|lg:` da la respuesta en un
-segundo) y auditá **vista por vista y modal por modal** en 2-3 anchos de device reales
-(360-430 px). Un gate de responsive en la ronda es lo que lo convierte en regla y no en
-intención.
+segundo) y auditá **vista por vista y modal por modal** barriendo **un rango** de anchos de
+device (320-1024 px), no tres teléfonos. Y pedí que el arreglo sea **fluido**: si el fix es un
+`@media` por teléfono, la auditoría lo va a marcar en el ancho siguiente. Un gate de
+responsive en la ronda es lo que lo convierte en regla y no en intención.
 
 ---
 
