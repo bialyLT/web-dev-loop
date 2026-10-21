@@ -363,7 +363,28 @@ reintento tiene una causa real: el lock de sesiones, la memoria, el flakiness).
 **Pregunta útil antes de cerrar:** "¿qué pasa si **no** hay reintento?" Si la respuesta es
 "falla", el número que hay que reportar es el del primer intento.
 
+### D17 · Un DSN se pasa explícito; nunca se arma a mano con un regex sobre el `.env`
+**Síntoma:** un gate corrió contra la base **de la persona** y la borró (dos veces). La causa:
+para levantar la instancia de pruebas, el agente **escribió el entorno a mano** con un regex
+tipo `DATABASE_URL` (el de la persona) en vez del de tests, y además
+`process.loadEnvFile()` **no pisa** una variable que ya está presente en el entorno.
+**Regla:**
+- **El DSN se pasa por variable de entorno explícita** (`$env:DATABASE_URL_TEST = ...`), y
+  **nunca** se deduce con un regex sobre el `.env`: `DATABASE_URL` y `DATABASE_URL_TEST` se
+  parecen, y un regex que matchea el primero se lleva la base real.
+- **`loadEnvFile()`/dotenv no pisan** lo que ya está en el entorno: si el proceso ya tiene
+  `DATABASE_URL`, el `.env` no lo cambia. Verificá el valor **efectivo** (imprimilo) antes
+  de correr algo que borre.
+- **La fuente de verdad es el script del proyecto** (el que levanta la instancia de pruebas y
+  comprueba el estado de la base antes y después). Si te parece que hay que reimplementarlo,
+  es que falta algo en el script: arreglalo ahí, no en un script paralelo.
+- Y si igual se borró algo: **restaurá con los mismos ids** (en muchas bases el id encodes el
+  timestamp de creación: los primeros caracteres en base36 lo dan) y **verificá con un snapshot
+  byte a byte** antes/después. Un "lo restauré" sin comparación no es una restauración.
+
 ---
+
+## E. Loop y cierre
 
 ### E1 · Un solo escritor a la vez
 El dev escribe; cuando entrega, el árbol queda congelado y el tester pasa a ser el único
