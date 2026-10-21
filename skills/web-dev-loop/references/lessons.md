@@ -340,9 +340,30 @@ datos real.
 decide la persona.
 **Corolario de proceso:** un dato inválido es **un hallazgo**, no una tarea de limpieza.
 
----
+### D15 · Un gate que omite en vez de fallar es una mentira con luz verde
+**Síntoma:** el gate termina en "OK" pero **un caso no se corrió** (un flow que apuntaba al
+entorno equivocado quedó *omitido* con un aviso en amarillo, y la corrida siguió).
+**Por qué importa:** "verde" tiene que significar "**todo se corrió**". Un gate que salta lo
+que no puede correr y sigue informa de un éxito que no existió: lo peor de un gate, porque
+**desactiva la alarma justo cuando debería sonar**.
+**Regla:** si un caso **no se puede ejecutar** (apunta al entorno equivocado, falta un
+archivo, el build está viejo, la base es la misma), el gate **aborta** con exit≠0 y lo dice.
+El "omitido" es un resultado, no un detalle: o aborta, o el gate no cuenta ese caso.
+**Corolario:** probá que el aborto **funciona** (metele una fuga a propósito y verificá que
+el gate se pone rojo). Un feature de seguridad que nunca se probó es una conjetura.
 
-## E. Loop y cierre
+### D16 · Leé tus propios artefactos antes de afirmar un número
+**Síntoma:** el informe dice "25/25 flows" y los logs del propio autor dicen 24/25: un caso
+pasó **gracias al reintento** que se agregó, y el primer intento **fallaba siempre**.
+**Causa:** el número salió del recuerdo, no de la evidencia.
+**Regla:** todo claim de un informe tiene que salir del **artefacto** (el log, el reporte de
+la corrida, el JSON del gate) y no de "me salió bien". Si el artefacto y el claim no
+coinciden, **el claim está mal** (y a veces el código también: un caso que sólo pasa con
+reintento tiene una causa real: el lock de sesiones, la memoria, el flakiness).
+**Pregunta útil antes de cerrar:** "¿qué pasa si **no** hay reintento?" Si la respuesta es
+"falla", el número que hay que reportar es el del primer intento.
+
+---
 
 ### E1 · Un solo escritor a la vez
 El dev escribe; cuando entrega, el árbol queda congelado y el tester pasa a ser el único
