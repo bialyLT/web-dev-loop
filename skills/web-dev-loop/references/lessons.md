@@ -227,6 +227,29 @@ patrón ya existe en el proyecto, seguí el patrón y no inventes otro. Y si el 
 seleccionar por algo más estable (id, texto, rol), **cambiá el test y borrá el gancho**:
 los tests son tuyos, no un muro.
 
+### C15 · El aspecto por defecto es una señal de "esto lo hizo una IA"
+**Síntoma:** el producto se ve genérico y la persona dice "tiene aspecto de IA" (sin poder señalar
+el problema exacto).
+**Causa:** **nada se decidió, todo salió por defecto.** Y los defaults de las herramientas son, por
+diseño, lo más aburrido del ecosistema: la paleta gris de Tailwind (`zinc-*` en cada tarjeta), el
+mismo radio en todo, la fuente por defecto del framework, sombras como decoración, iconos
+emoji mezclados con texto, y cero librerías de UI (los modales con `role="dialog"` escritos a
+mano).
+**Regla:** un producto propio tiene **tokens propios** (semánticos, no de color: `surface`,
+`line`, `line-strong`, `focus`), **una** escala de radios con significado, **un** set de iconos,
+**una** escala tipográfica y **cifras tabulares** en los números (si no, las columnas no alinean y
+cualquier cambio de fuente rompe el modelo de medidas). La librería de componentes aporta el
+**comportamiento** (foco, teclado, ARIA, portales) y el **design system** aporta la piel: no son
+competidores.
+**El truco para la decisión de gusto:** **no describas estilos, mostralos.** Un spike con 2-3
+variantes renderizadas sobre la **misma pantalla con los mismos datos** (tokens scopeados por
+contenedor → un solo árbol, varias apariencias), con los **ratios de contraste calculados y a la
+vista**, y que la persona elija mirando. Es la única forma fiable: el "aspecto" se juzga con los
+ojos, no leyendo una descripción.
+**Y un gate que lo impide:** un check que falle si reaparece la paleta por defecto del framework,
+un emoji como icono, un radio fuera de la escala o una `font-family` fuera del tema. Sin ese
+gate, el producto vuelve a la fábrica en dos semanas.
+
 ---
 
 ## D. Arnés y medición
